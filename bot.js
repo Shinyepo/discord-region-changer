@@ -98,7 +98,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.channel.isVoiceBased()) {
       const user = interaction.user;
       const channel = interaction.channel;
-      const foundUser = channel.members.find((x) => x.id === user.id);
+      const foundUser = channel.members.find((x) => x.user.id === user.id);
       if (!foundUser) {
         return await interaction.reply({
           content:
@@ -110,13 +110,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
       const { cooldowns } = interaction.client;
 
       if (!cooldowns.has(interaction.message.id.toString())) {
-      console.log("setting new");
 
         cooldowns.set(interaction.message.id.toString(), new Collection());
       }
       const now = Date.now();
       const timestamps = cooldowns.get(interaction.message.id.toString());
-      console.log({timestamps, cooldowns});
 
       const cooldownAmount = 20 * 1_000;
 
@@ -137,6 +135,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
       setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
       
       const buttonId = interaction.customId;
+      const channels = interaction.guild.channels;
+      const logChannel = channels.cache.find(x=>x.id === "1300574571337875456");
+      const oldRegion = channel.rtcRegion;
       if (buttonId == "automatic" && channel.rtcRegion != null) {
         await channel.setRTCRegion(null);
         const embed = BuiltEmbed(buttonId);
@@ -145,6 +146,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
           content: "Region has been changed to Automatic",
           ephemeral: true,
         });
+        
+        if (logChannel) {
+          await logChannel.send(interaction.member.toString() + " has changed " + channel.toString() + " region from " + oldRegion + " to Automatic");
+        }
         return;
       }
       if (channel.rtcRegion !== buttonId && buttonId !== "automatic") {
@@ -156,6 +161,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
           content: "Region has been changed to " + formatted,
           ephemeral: true,
         });
+        if (logChannel) {
+          await logChannel.send(interaction.member.toString() + " has changed " + channel.toString() + " region from " + oldRegion + " to " + formatted);
+        }
         return;
       } else {
         await interaction.reply({
