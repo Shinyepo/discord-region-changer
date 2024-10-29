@@ -98,8 +98,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.channel.isVoiceBased()) {
       const user = interaction.user;
       const channel = interaction.channel;
-      const foundUser = channel.members.find((x) => x.user.id === user.id);
-      if (!foundUser) {
+      const foundUser = channel.members.find((x) => x.id === user.id);
+      
+      if (channel.members.size < 1 || !foundUser) {
         return await interaction.reply({
           content:
             "You cant change region of a channel you are not connected to.",
