@@ -11,6 +11,8 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildModeration,
+    GatewayIntentBits.GuildMembers,    
+    GatewayIntentBits.GuildVoiceStates,
   ],
 });
 
@@ -97,7 +99,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
   } else if (interaction.isButton()) {
     if (interaction.channel.isVoiceBased()) {
       const user = interaction.user;
-      const channel = interaction.channel;
+      const guild = interaction.guild;
+      const channel = guild.channels.cache.find(x=>x.id === interaction.channel.id);
+      if (!channel) return console.log("missing channel");
+      // console.log({guild: interaction.guild.id, intChannel: interaction.channel.id, channel: channel.id, membersc: channel.memberCount, members: channel.members });
+      // console.log({intmemco: interaction.channel.members.size, memco: channel.members.size});
+      //const channel = interaction.channel;
       const foundUser = channel.members.find((x) => x.id === user.id);
       
       if (channel.members.size < 1 || !foundUser) {
